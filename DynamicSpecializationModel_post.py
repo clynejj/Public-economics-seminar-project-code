@@ -47,9 +47,9 @@ class DynamicSpecializationModelClass(EconModelClass):
         par.sigma_n = 0.0
 
         # d. wages and income
-        par.wage_const_f = 0.0
+        par.wage_const_f = 0.00000000005
         par.wage_humcap_f = 0.1
-        par.wage_const_m = 0.0
+        par.wage_const_m = 0.00000000005
         par.wage_humcap_m = 0.1
 
         par.X = 0.0 # unearned income
