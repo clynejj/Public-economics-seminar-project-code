@@ -222,7 +222,7 @@ class DynamicSpecializationModelClass(EconModelClass):
         wage_f = self.wage_func(capital_f,woman)
         wage_m = self.wage_func(capital_m,man)
 
-        C = wage_f*labor_f + wage_m*labor_m + par.X
+        C = wage_f*labor_f + wage_m*labor_m + self.child_transfer(kids)
 
         # c. home production
         alpha = par.alpha + par.alpha_n*kids
@@ -265,6 +265,12 @@ class DynamicSpecializationModelClass(EconModelClass):
 
     def human_capital_next(self,capital,labor):
         return (1.0-self.par.delta)*capital + labor/24.0
+    
+    def child_transfer(self,kids):
+        if kids ==1:
+            return self.par.X
+        else:
+            return 0.0
     
     ##############
     # Simulation #
