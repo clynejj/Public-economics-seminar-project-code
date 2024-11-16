@@ -36,8 +36,11 @@ class DynamicSpecializationModelClass(EconModelClass):
         par.nu = 0.001
         par.epsilon_f = 1.0
         par.epsilon_m = 1.0
+        par.epsilon_f_kids = 0.01
+        par.epsilon_m_kids = 0.01
         par.omega = 0.5 
         par.omega_n = -0.2
+        par.power = 0.5 # power level of women
 
         # c. household production
         par.alpha = 0.6
@@ -47,9 +50,9 @@ class DynamicSpecializationModelClass(EconModelClass):
         par.sigma_n = 0.0
 
         # d. wages and income
-        par.wage_const_f = 0.00000000005
+        par.wage_const_f = 3.0
         par.wage_humcap_f = 0.1
-        par.wage_const_m = 0.00000000005
+        par.wage_const_m = 3.0
         par.wage_humcap_m = 0.1
 
         par.X = 0.0 # unearned income
@@ -241,10 +244,10 @@ class DynamicSpecializationModelClass(EconModelClass):
         # f. dis-utility from work
         T_f = labor_f + home_f
         T_m = labor_m + home_m
-        power_f = 1+1/par.epsilon_f
-        power_m = 1+1/par.epsilon_m
+        power_f = 1+1/(par.epsilon_f + par.epsilon_f_kids*kids)
+        power_m = 1+1/(par.epsilon_m + par.epsilon_m_kids*kids)
 
-        util_T = par.nu * (T_f**power_f / power_f + T_m**power_m / power_m)
+        util_T = par.nu*(par.power * (T_f**power_f / power_f) + (1-par.power)*(T_m**power_m / power_m))
         
         # g. return total utility
         return util_Q - util_T
@@ -336,14 +339,17 @@ class DynamicSpecializationModelClass(EconModelClass):
         return constant,slope
     
     def regress_female(self):
-        """ run regression """
+        """ run regression. First we must transfer daily hours to weekly hours """
         # a. unpack
         sim = self.sim
+
+        # transfer daily hours to weekly hours
+        weekly_sim_home_f = sim.home_f * 7
 
         # b. run regression
         if (np.min(sim.wage_f)>0.0) & (np.min(sim.wage_m)>0.0) & (np.min(sim.home_f)>0.0) & (np.min(sim.home_m)>0.0):
             x = np.log(sim.wage_f/sim.wage_m).ravel()
-            y = np.log(sim.home_f).ravel()
+            y = np.log(weekly_sim_home_f).ravel()
             A = np.vstack([np.ones(x.size),x]).T
             constant,slope = np.linalg.lstsq(A,y,rcond=None)[0]
         else:
@@ -353,14 +359,17 @@ class DynamicSpecializationModelClass(EconModelClass):
         return constant,slope
     
     def regress_male(self):
-        """ run regression """
+        """ run regression. First we must transfer daily hours to weekly hours """
         # a. unpack
         sim = self.sim
+
+        # transfer daily hours to weekly hours
+        weekly_sim_home_m = sim.home_m * 7
 
         # b. run regression
         if (np.min(sim.wage_f)>0.0) & (np.min(sim.wage_m)>0.0) & (np.min(sim.home_f)>0.0) & (np.min(sim.home_m)>0.0):
             x = np.log(sim.wage_f/sim.wage_m).ravel()
-            y = np.log(sim.home_m).ravel()
+            y = np.log(weekly_sim_home_m).ravel()
             A = np.vstack([np.ones(x.size),x]).T
             constant,slope = np.linalg.lstsq(A,y,rcond=None)[0]
         else:
@@ -431,17 +440,21 @@ class DynamicSpecializationModelClass(EconModelClass):
         rel_wage_grid = np.linspace(np.min(rel_wage.ravel()),np.max(rel_wage.ravel()),2)
 
         # c. log female home production
-        log_home_f = np.log(sim.home_f)
+        log_home_f = np.log(sim.home_f*7)
 
         # d. plot relationship 
         fig, ax = plt.subplots()
-        #ax.scatter(rel_wage,log_home_f,label='simulated scatter')
-        ax.plot(rel_wage_grid,1.06-0.93*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
+        ax.scatter(rel_wage,log_home_f,label='simulated scatter')
+        ax.plot(rel_wage_grid,3.255-0.094*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
         if add_regression:
             constant,slope = self.regress_female()
             ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='simulated relationship',color='red',linewidth=2)
 
-        ax.set(title='female domestic work hours',xlabel='$log(w_f/w_m)$',ylabel='$log(h_f)$')
+        # define labels
+        ax.set(title='Female domestic work hours (per week)',xlabel='$log(w_f/w_m)$',ylabel='$log(h_f)$')
+
+        # Set x-axis limits to reduce zoom and show a broader range of values
+        #ax.set_ylim(2.5,3.5)  # Adjust this range as needed to achieve the desired zoom level
         ax.legend()
 
     def plot_male_hours(self,add_regression=True):
@@ -453,14 +466,14 @@ class DynamicSpecializationModelClass(EconModelClass):
         rel_wage_grid = np.linspace(np.min(rel_wage.ravel()),np.max(rel_wage.ravel()),2)
 
         # c. log female home production
-        log_home_m = np.log(sim.home_m)
+        log_home_m = np.log(sim.home_m*7)
 
         # d. plot relationship 
         fig, ax = plt.subplots()
-        #ax.scatter(rel_wage,log_home_f,label='simulated scatter')
-        ax.plot(rel_wage_grid,1.012-0.009*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
+        ax.scatter(rel_wage,log_home_m,label='simulated scatter')
+        ax.plot(rel_wage_grid,2.811-0.003*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
         if add_regression:
-            constant,slope = self.regress_female()
+            constant,slope = self.regress_male()
             ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='simulated relationship',color='red',linewidth=2)
 
         ax.set(title='Male domestic work hours',xlabel='$log(w_f/w_m)$',ylabel='$log(h_m)$')
