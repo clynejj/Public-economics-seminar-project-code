@@ -415,10 +415,10 @@ class DynamicSpecializationModelClass(EconModelClass):
 
         # d. plot relationship 
         fig, ax = plt.subplots()
-        ax.plot(rel_wage_grid, 0.4 - 0.1 * rel_wage_grid, label='empirical target', color='orange', linewidth=2)
+        ax.plot(rel_wage_grid, 0.4 - 0.1 * rel_wage_grid, label='Data', color='orange', linewidth=2)
         if add_regression:
             constant, slope = self.regress()
-            ax.plot(rel_wage_grid, constant + slope * rel_wage_grid, label='simulated relationship', color='red', linewidth=2)
+            ax.plot(rel_wage_grid, constant + slope * rel_wage_grid, label='Model', color='blue', linewidth=2)
 
         ax.set(title='Female domestic work share', xlabel='$log(w_f/w_m)$', ylabel='$log(h_f/h_m)$')
 
@@ -444,11 +444,11 @@ class DynamicSpecializationModelClass(EconModelClass):
 
         # d. plot relationship 
         fig, ax = plt.subplots()
-        ax.scatter(rel_wage,log_home_f,label='simulated scatter')
-        ax.plot(rel_wage_grid,3.255-0.094*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
+        #ax.scatter(rel_wage,log_home_f,label='simulated scatter')
+        ax.plot(rel_wage_grid,3.255-0.094*rel_wage_grid,label='data',color='orange',linewidth=2)
         if add_regression:
             constant,slope = self.regress_female()
-            ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='simulated relationship',color='red',linewidth=2)
+            ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='model',color='blue',linewidth=2)
 
         # define labels
         ax.set(title='Female domestic work hours (per week)',xlabel='$log(w_f/w_m)$',ylabel='$log(h_f)$')
@@ -470,11 +470,11 @@ class DynamicSpecializationModelClass(EconModelClass):
 
         # d. plot relationship 
         fig, ax = plt.subplots()
-        ax.scatter(rel_wage,log_home_m,label='simulated scatter')
-        ax.plot(rel_wage_grid,2.811-0.003*rel_wage_grid,label='empirical target',color='orange',linewidth=2)
+        #ax.scatter(rel_wage,log_home_m,label='simulated scatter')
+        ax.plot(rel_wage_grid,2.811-0.003*rel_wage_grid,label='data',color='orange',linewidth=2)
         if add_regression:
             constant,slope = self.regress_male()
-            ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='simulated relationship',color='red',linewidth=2)
+            ax.plot(rel_wage_grid,constant+slope*rel_wage_grid,label='model',color='blue',linewidth=2)
 
         ax.set(title='Male domestic work hours',xlabel='$log(w_f/w_m)$',ylabel='$log(h_m)$')
         ax.legend()
