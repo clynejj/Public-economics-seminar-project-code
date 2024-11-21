@@ -33,18 +33,25 @@ class DynamicSpecializationModelClass(EconModelClass):
         # b. preferences
         par.beta = 0.98
         par.rho = 2.0
-        par.nu = 0.001
-        par.epsilon_f = 1.0
-        par.epsilon_m = 1.0
-        par.epsilon_f_kids = 0.01
-        par.epsilon_m_kids = 0.01
+        par.nu_f_l = 0.001
+        par.nu_f_h = 0.001
+        par.nu_m_l = 0.001
+        par.nu_m_h = 0.001
+        par.epsilon_f_l = 1.0
+        par.epsilon_m_l = 1.0
+        par.epsilon_f_h = 1.0
+        par.epsilon_m_h = 1.0
+        par.epsilon_f_l_kids = -0.1
+        par.epsilon_m_l_kids = -0.1
+        par.epsilon_f_h_kids = -0.1
+        par.epsilon_m_h_kids = -0.1
         par.omega = 0.5 
         par.omega_n = -0.2
         par.power = 0.5 # power level of women
 
         # c. household production
-        par.alpha = 0.6
-        par.alpha_n = 0.2
+        par.alpha = 0.5
+        par.alpha_n = 0.0
 
         par.sigma = 0.3 
         par.sigma_n = 0.0
@@ -55,7 +62,7 @@ class DynamicSpecializationModelClass(EconModelClass):
         par.wage_const_m = 3.0
         par.wage_humcap_m = 0.1
 
-        par.X = 0.0 # unearned income
+        par.X = 0.0 # unearned income child transfer
 
         par.delta = 0.1 # human capital depreciation
 
@@ -244,10 +251,15 @@ class DynamicSpecializationModelClass(EconModelClass):
         # f. dis-utility from work
         T_f = labor_f + home_f
         T_m = labor_m + home_m
-        power_f = 1+1/(par.epsilon_f + par.epsilon_f_kids*kids)
-        power_m = 1+1/(par.epsilon_m + par.epsilon_m_kids*kids)
+        power_f_l = 1+1/(par.epsilon_f_l + par.epsilon_f_l_kids*kids)
+        power_m_l = 1+1/(par.epsilon_m_l + par.epsilon_m_l_kids*kids)
+        power_f_h = 1+1/(par.epsilon_f_h + par.epsilon_f_h_kids*kids)
+        power_m_h = 1+1/(par.epsilon_m_h + par.epsilon_m_h_kids*kids)
 
-        util_T = par.nu*(par.power * (T_f**power_f / power_f) + (1-par.power)*(T_m**power_m / power_m))
+        util_f_T = par.nu_f_l* (labor_f**power_f_l / power_f_l) + par.nu_f_h*(home_f**power_f_h / power_f_h)
+        util_m_T = par.nu_m_l* (labor_m**power_m_l / power_m_l) + par.nu_m_h*(home_m**power_m_h / power_m_h)
+
+        util_T = par.power * util_f_T + (1-par.power) * util_m_T
         
         # g. return total utility
         return util_Q - util_T
