@@ -37,6 +37,10 @@ class DynamicSpecializationModelClass(EconModelClass):
         par.nu_f_h = 0.001
         par.nu_m_l = 0.001
         par.nu_m_h = 0.001
+        par.nu_f_l_kids = 0.000
+        par.nu_f_h_kids = 0.000
+        par.nu_m_l_kids = 0.000
+        par.nu_m_h_kids = 0.000
         par.epsilon_f_l = 1.0
         par.epsilon_m_l = 1.0
         par.epsilon_f_h = 1.0
@@ -256,8 +260,15 @@ class DynamicSpecializationModelClass(EconModelClass):
         power_f_h = 1+1/(par.epsilon_f_h + par.epsilon_f_h_kids*kids)
         power_m_h = 1+1/(par.epsilon_m_h + par.epsilon_m_h_kids*kids)
 
-        util_f_T = par.nu_f_l* (labor_f**power_f_l / power_f_l) + par.nu_f_h*(home_f**power_f_h / power_f_h)
-        util_m_T = par.nu_m_l* (labor_m**power_m_l / power_m_l) + par.nu_m_h*(home_m**power_m_h / power_m_h)
+        # disutility coeffs
+        nu_f_l = par.nu_f_l + par.nu_f_l_kids * kids
+        nu_f_h = par.nu_f_h + par.nu_f_h_kids * kids
+        nu_m_l = par.nu_m_l + par.nu_m_l_kids * kids
+        nu_m_h = par.nu_m_h + par.nu_m_h_kids * kids
+
+
+        util_f_T = nu_f_l* (labor_f**power_f_l / power_f_l) + nu_f_h*(home_f**power_f_h / power_f_h)
+        util_m_T = nu_m_l* (labor_m**power_m_l / power_m_l) + nu_m_h*(home_m**power_m_h / power_m_h)
 
         util_T = par.power * util_f_T + (1-par.power) * util_m_T
         
